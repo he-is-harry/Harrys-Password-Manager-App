@@ -1,0 +1,7 @@
+---
+rust:
+  directory: ../../../Harrys-Password-Manager-Core
+  manifestPath: Cargo.toml
+
+ios:
+  cargoExtras: [--no-default-features, --features, uniffi]
