@@ -1,77 +1,140 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
+import {
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
 
 import { useSession } from '../components/auth/ctx';
+import { GlobalStyles } from '../constants/styles';
+import { colors } from '../constants/colors';
+import { BackgroundLayout } from '../components/background-layout';
 
 export default function SignIn() {
-  const { signIn } = useSession();
+  const { signIn, signInBiometric, checkBiometricAuthEnabled } = useSession();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasBiometricAuth, setHasBiometricAuth] = useState(false);
 
-  const handleSignIn = async () => {
+  const handleSignIn = () => {
     setLoading(true);
+    setError(null);
     try {
-      await signIn(password);
+      signIn(password);
       router.replace('/');
     } catch (e) {
-      console.error(e);
-      // Handle error
+      setError('Invalid password');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (checkBiometricAuthEnabled()) {
+      setHasBiometricAuth(true);
+      signInBiometric().catch((e) => {
+        setError('Biometric authentication failed');
+      });
+    } else {
+      setHasBiometricAuth(false);
+    }
+  }, [checkBiometricAuthEnabled]);
+
+  const handleBiometricSignIn = async () => {
+    try {
+      setError(null);
+      await signInBiometric();
+    } catch (e) {
+      setError('Biometric authentication failed');
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Sign In</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Master Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        autoCapitalize="none"
-      />
-      <Pressable onPress={handleSignIn} style={styles.button}>
-        <Text style={styles.buttonText}>{loading ? 'Signing in...' : 'Sign In'}</Text>
-      </Pressable>
-    </View>
+    <BackgroundLayout>
+      <SafeAreaView style={GlobalStyles.container}>
+        <View style={GlobalStyles.paddedTopContent}>
+          <Text style={GlobalStyles.header}>Sign In</Text>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={GlobalStyles.input}
+              placeholder="Master Password"
+              placeholderTextColor={colors.white60}
+              secureTextEntry
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+              }}
+              autoCapitalize="none"
+            />
+
+            {error && (
+              <View style={styles.errorContainer}>
+                <MaterialIcons name="error-outline" size={20} color={colors.error} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <Pressable
+              style={({ pressed }) => [
+                GlobalStyles.largeButton,
+                pressed && GlobalStyles.buttonPressed,
+                loading && GlobalStyles.buttonDisabled,
+              ]}
+              onPress={handleSignIn}
+              disabled={loading}
+            >
+              <Text style={GlobalStyles.buttonText}>
+                {loading ? 'Signing in...' : 'Sign In'}
+              </Text>
+            </Pressable>
+
+            {hasBiometricAuth && (
+              <Pressable
+                style={({ pressed }) => [
+                  GlobalStyles.largeButton,
+                  GlobalStyles.buttonSecondary,
+                  pressed && GlobalStyles.buttonPressed,
+                ]}
+                onPress={handleBiometricSignIn}
+              >
+                <Text style={[GlobalStyles.buttonText, GlobalStyles.buttonSecondaryText]}>
+                  Sign In with Biometrics
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+      </SafeAreaView>
+    </BackgroundLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: 'white',
-  },
-  header: {
-    fontSize: 24,
-    marginBottom: 24,
-    fontFamily: 'Dynapuff',
-  },
-  input: {
+  buttonContainer: {
     width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontFamily: 'Inter_400Regular',
+    gap: 16,
   },
-  button: {
-    backgroundColor: 'black',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+  inputContainer: {
+    gap: 4,
+    width: '100%',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: 'Inter_600SemiBold',
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
   },
 });

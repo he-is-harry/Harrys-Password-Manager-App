@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { SessionProvider, useSession } from '../components/auth/ctx';
 import { SplashScreenController } from '../components/auth/splash';
@@ -10,28 +11,33 @@ global.Buffer = Buffer;
 export default function Root() {
   // Set up the auth context and render your layout inside of it.
   return (
-    <SessionProvider>
-      <SplashScreenController />
-      <RootNavigator />
-    </SessionProvider>
+    <SafeAreaProvider>
+      <SessionProvider>
+        <SplashScreenController />
+        <RootNavigator />
+      </SessionProvider>
+    </SafeAreaProvider>
   );
 }
 
 // Create a new component that can access the SessionProvider context later.
 function RootNavigator() {
-  const { vaultKey, isOnboarded } = useSession();
+  const { vaultKey, hasCreatedLogin, hasCompletedOnboarding } = useSession();
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!vaultKey}>
-        <Stack.Screen name="(app)" />
+        <Stack.Protected guard={hasCompletedOnboarding}>
+          <Stack.Screen name="(app)" />
+        </Stack.Protected>
+        <Stack.Screen name="onboarding" />
       </Stack.Protected>
 
-      <Stack.Protected guard={isOnboarded && !vaultKey}>
+      <Stack.Protected guard={hasCreatedLogin && !vaultKey}>
         <Stack.Screen name="sign-in" />
       </Stack.Protected>
 
-      <Stack.Protected guard={!isOnboarded}>
+      <Stack.Protected guard={!hasCreatedLogin}>
         <Stack.Screen name="create-master-password" />
       </Stack.Protected>
     </Stack>
