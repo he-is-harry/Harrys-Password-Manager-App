@@ -46,9 +46,9 @@ export default function BiometricSetup() {
     <BackgroundLayout>
       <SafeAreaView style={GlobalStyles.container}>
         <View style={GlobalStyles.paddedTopContent}>
-          <Text style={GlobalStyles.header}>Biometric Setup</Text>
+          <Text style={GlobalStyles.h1}>Biometric Setup</Text>
 
-          <Text style={GlobalStyles.body}>
+          <Text style={[GlobalStyles.body1, { textAlign: 'center' }]}>
             {supportsBiometricAuth
               ? "Enable biometric authentication for quicker access."
               : "Your device does not support biometrics or it's not set up. You can manage this in your device settings."}

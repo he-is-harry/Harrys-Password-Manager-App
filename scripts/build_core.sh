@@ -1,6 +1,20 @@
 #!/bin/bash
 set -e
 
+# --- Configuration ---
+# Default command
+IOS_BUILD_COMMAND="yarn ubrn:ios"
+
+# Check for arguments
+for arg in "$@"
+do
+    if [ "$arg" == "--release" ]; then
+        echo "INFO: Release flag detected."
+        IOS_BUILD_COMMAND="yarn ubrn:ios-release"
+    fi
+done
+# ---------------------
+
 # Save the current directory to return to it later
 ORIGINAL_DIR="$(pwd)"
 
@@ -23,7 +37,9 @@ cd "$HARRYS_PASSWORD_MANAGER_APP_DIR"
 # 1. Build the Core Module
 echo "INFO: Building harrys-password-manager-core..."
 cd modules/harrys-password-manager-core
-yarn ubrn:ios
+# Execute the command determined at the start of the script
+echo "INFO: Running build command command: $IOS_BUILD_COMMAND"
+$IOS_BUILD_COMMAND
 yarn prepare
 
 # 2. Return to App Directory

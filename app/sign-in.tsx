@@ -1,19 +1,19 @@
 import { router } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import {
   Pressable,
   Text,
-  TextInput,
   View,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native';
 
 import { useSession } from '../components/auth/ctx';
 import { GlobalStyles } from '../constants/styles';
 import { colors } from '../constants/colors';
 import { BackgroundLayout } from '../components/background-layout';
+import { PasswordInput } from '../components/common/password-input';
+import { InputError } from '@/components/common/input-error';
 
 export default function SignIn() {
   const { signIn, signInBiometric, checkBiometricAuthEnabled } = useSession();
@@ -28,7 +28,7 @@ export default function SignIn() {
     try {
       signIn(password);
       router.replace('/');
-    } catch (e) {
+    } catch {
       setError('Invalid password');
     } finally {
       setLoading(false);
@@ -44,13 +44,13 @@ export default function SignIn() {
     } else {
       setHasBiometricAuth(false);
     }
-  }, [checkBiometricAuthEnabled]);
+  }, [checkBiometricAuthEnabled, signInBiometric]);
 
   const handleBiometricSignIn = async () => {
     try {
       setError(null);
       await signInBiometric();
-    } catch (e) {
+    } catch {
       setError('Biometric authentication failed');
     }
   };
@@ -59,27 +59,16 @@ export default function SignIn() {
     <BackgroundLayout>
       <SafeAreaView style={GlobalStyles.container}>
         <View style={GlobalStyles.paddedTopContent}>
-          <Text style={GlobalStyles.header}>Sign In</Text>
+          <Text style={GlobalStyles.h1}>Sign In</Text>
 
           <View style={styles.inputContainer}>
-            <TextInput
-              style={GlobalStyles.input}
-              placeholder="Master Password"
-              placeholderTextColor={colors.white60}
-              secureTextEntry
+            <PasswordInput
               value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-              }}
-              autoCapitalize="none"
+              onChangeText={setPassword}
+              placeholder="Master Password"
             />
 
-            {error && (
-              <View style={styles.errorContainer}>
-                <MaterialIcons name="error-outline" size={20} color={colors.error} />
-                <Text style={styles.errorText}>{error}</Text>
-              </View>
-            )}
+            <InputError error={error} />
           </View>
 
           <View style={styles.buttonContainer}>

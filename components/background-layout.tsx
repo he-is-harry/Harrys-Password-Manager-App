@@ -1,4 +1,4 @@
-import { ImageBackground, View, ViewStyle } from 'react-native';
+import { ImageBackground, ViewStyle } from 'react-native';
 import { ReactNode } from 'react';
 import { GlobalStyles } from '@/constants/styles';
 

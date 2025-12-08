@@ -1,16 +1,11 @@
 import { addLogin, authenticateUser, authenticateUserBiometric, checkBiometricAuthEnabled, checkCompletedOnboarding, checkLoginCreated, completeOnboardingSave } from '@/src/auth';
 
 import { uniffiInitAsync } from 'react-native-harrys-password-manager-core';
-import { createContext, use, useEffect, useState, type PropsWithChildren } from 'react';
+import { createContext, use, useCallback, useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import {
-  store,
   initDatabase,
-  LOGIN_ARGON2_SALT,
-  LOGIN_VAULT_KEY_CIPHERTEXT,
-  LOGIN_VAULT_KEY_NONCE,
-  LOGIN_COMPLETED_ONBOARDING,
-  LOGIN_HAS_BIOMETRIC_AUTH
 } from '@/src/db';
+import { AppState } from 'react-native';
 
 interface AuthContextType {
   signIn: (masterPassword: string) => void;
@@ -48,49 +43,19 @@ export function useSession() {
   return value;
 }
 
-// TEST function to clear all data
-async function clearAllValuesData() {
-  store.delValues();
-}
-
 export function SessionProvider({ children }: PropsWithChildren) {
   const [vaultKey, setVaultKey] = useState<ArrayBuffer | null>(null);
   const [hasCreatedLogin, setHasCreatedLogin] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const appState = useRef(AppState.currentState);
 
-  useEffect(() => {
-    async function prepare() {
-      try {
-        // Initialize Harry's Password Manager Core and run migrations. We put these 
-        // here in ctx.tsx so that we can render the splash screen while these run.
-        await uniffiInitAsync();
-        await initDatabase();
-
-        // TEST
-        await clearAllValuesData();
-
-        const hasCreatedLogin = checkLoginCreated();
-        setHasCreatedLogin(hasCreatedLogin);
-        if (hasCreatedLogin) {
-          const completedOnboarding = checkCompletedOnboarding();
-          setHasCompletedOnboarding(completedOnboarding);
-        }
-      } catch (e) {
-        console.error('Initialization failed:', e);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    prepare();
-  }, []);
-
-  const wipeKey = () => {
+  const wipeKey = useCallback(() => {
     if (vaultKey) {
       new Uint8Array(vaultKey).fill(0);
     }
     setVaultKey(null);
-  };
+  }, [vaultKey, setVaultKey]);
 
   const signIn = (masterPassword: string) => {
     const vaultKey = authenticateUser(masterPassword);
@@ -112,14 +77,54 @@ export function SessionProvider({ children }: PropsWithChildren) {
     setHasCreatedLogin(true);
   };
 
-  const signOut = () => {
+  const signOut = useCallback(() => {
     wipeKey();
-  };
+  }, [wipeKey]);
 
   const completeOnboarding = async () => {
     await completeOnboardingSave();
     setHasCompletedOnboarding(true);
   }
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Initialize Harry's Password Manager Core and run migrations. We put these 
+        // here in ctx.tsx so that we can render the splash screen while these run.
+        await uniffiInitAsync();
+        await initDatabase();
+
+        const hasCreatedLogin = checkLoginCreated();
+        setHasCreatedLogin(hasCreatedLogin);
+        if (hasCreatedLogin) {
+          const completedOnboarding = checkCompletedOnboarding();
+          setHasCompletedOnboarding(completedOnboarding);
+        }
+      } catch (e) {
+        console.error('Initialization failed:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    prepare();
+  }, []);
+
+  useEffect(() => {
+    // Add a listener that checks if the app was moved to the background and signs out
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        (appState.current === 'active' || appState.current === 'inactive') &&
+        nextAppState === 'background'
+      ) {
+        signOut();
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [signOut]);
 
   return (
     <AuthContext.Provider

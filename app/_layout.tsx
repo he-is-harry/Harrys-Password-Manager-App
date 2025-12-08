@@ -22,15 +22,12 @@ export default function Root() {
 
 // Create a new component that can access the SessionProvider context later.
 function RootNavigator() {
-  const { vaultKey, hasCreatedLogin, hasCompletedOnboarding } = useSession();
+  const { vaultKey, hasCreatedLogin } = useSession();
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!vaultKey}>
-        <Stack.Protected guard={hasCompletedOnboarding}>
-          <Stack.Screen name="(app)" />
-        </Stack.Protected>
-        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(app)" />
       </Stack.Protected>
 
       <Stack.Protected guard={hasCreatedLogin && !vaultKey}>

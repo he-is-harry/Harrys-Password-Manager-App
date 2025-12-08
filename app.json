@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Harrys-Password-Manager-App",
-    "slug": "Harrys-Password-Manager-App",
+    "name": "Harry's Password Manager",
+    "slug": "Harrys-Password-Manager",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,12 +14,6 @@
       "bundleIdentifier": "com.anonymous.HarrysPasswordManagerApp"
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [],

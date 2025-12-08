@@ -1,4 +1,4 @@
-import { createStore } from 'tinybase/with-schemas';
+import { createQueries, createStore } from 'tinybase/with-schemas';
 import { createExpoSqlitePersister } from 'tinybase/persisters/persister-expo-sqlite/with-schemas';
 import { openDatabaseSync } from 'expo-sqlite';
 
@@ -41,6 +41,7 @@ const VALUES = {
 } as const;
 
 export const store = createStore().setTablesSchema(TABLES).setValuesSchema(VALUES);
+export const queries = createQueries(store);
 
 const expoDb = openDatabaseSync(process.env.EXPO_PUBLIC_STORAGE_DB_FILE_NAME!);
 export const persister = createExpoSqlitePersister(store, expoDb);

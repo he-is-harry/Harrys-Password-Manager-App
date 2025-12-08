@@ -1,7 +1,6 @@
 import { decryptVaultKey, EncryptedVaultKey } from 'react-native-harrys-password-manager-core';
 import { store, LOGIN_ARGON2_SALT, LOGIN_VAULT_KEY_CIPHERTEXT, LOGIN_VAULT_KEY_NONCE } from '../db/index';
 import * as SecureStore from 'expo-secure-store';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { Buffer } from 'buffer';
 
 // Returns user's vault key if successfully authenticated, otherwise returns an
@@ -33,14 +32,6 @@ export function authenticateUser(masterPassword: string) {
 // Returns the user's vault key from the secure store, which is stored only when they
 // have setup biometric authentication
 export async function authenticateUserBiometric() {
-  const authResult = await LocalAuthentication.authenticateAsync({
-    disableDeviceFallback: true,
-  });
-
-  if (!authResult.success) {
-    return Promise.reject(new Error('Biometric authentication failed'));
-  }
-
   const vaultKeyString = await SecureStore.getItemAsync(process.env.EXPO_PUBLIC_VAULT_KEY_NAME!, {
     requireAuthentication: true,
   });

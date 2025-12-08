@@ -41,8 +41,6 @@ export async function addLogin(masterPassword: string) {
     [DEVICE_KEY_DECRYPTION_KEY_CIPHERTEXT]: Buffer.from(encryptedDeviceKeys.decryptionKeyCiphertext()).toString('base64'),
     [DEVICE_KEY_DECRYPTION_KEY_NONCE]: Buffer.from(encryptedDeviceKeys.decryptionKeyNonce()).toString('base64'),
   });
-
-  masterPasswordBytes.fill(0);
 }
 
 // Sets up the user's login to support biometrics

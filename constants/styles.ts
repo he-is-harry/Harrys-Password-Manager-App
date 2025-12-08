@@ -13,19 +13,34 @@ export const GlobalStyles = StyleSheet.create({
         paddingTop: 128,
         gap: 24,
     },
-    header: {
+    h1: {
         fontFamily: 'Dynapuff',
         fontSize: 32,
         color: colors.white,
         textAlign: 'center',
         lineHeight: 40,
     },
-    body: {
+    h2: {
+        fontFamily: 'Dynapuff',
+        fontSize: 20,
+        color: colors.white,
+        lineHeight: 28,
+    },
+    body1: {
         fontFamily: 'Inter_400Regular',
         fontSize: 16,
         color: colors.white,
-        textAlign: 'center',
-        marginBottom: 16,
+    },
+    boldBody2: {
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 14,
+        color: colors.white,
+        marginLeft: 4,
+    },
+    body3: {
+        fontFamily: 'Inter_400Regular',
+        fontSize: 14,
+        color: colors.white,
     },
     input: {
         width: '100%',
@@ -52,6 +67,30 @@ export const GlobalStyles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 5,
     },
+    fittedButton: {
+        padding: 12,
+        backgroundColor: colors.white,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+    },
+    invertedIconButton: {
+        padding: 8,
+        backgroundColor: colors.pink,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+    },
     buttonPressed: {
         opacity: 0.9,
         transform: [{ scale: 0.98 }],
@@ -63,6 +102,7 @@ export const GlobalStyles = StyleSheet.create({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 16,
         color: colors.black,
+        lineHeight: 20,
     },
     buttonSecondary: {
         width: '100%',
